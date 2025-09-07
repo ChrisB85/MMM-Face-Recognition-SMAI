@@ -14,6 +14,18 @@ import os
 import time
 import argparse
 
+def get_module_base_path():
+    """Get the base path of the current module dynamically"""
+    return os.path.dirname(os.path.abspath(__file__))
+
+def get_public_dir_path():
+    """Get the path to the public directory"""
+    return os.path.join(get_module_base_path(), "public")
+
+def get_sample_file_path():
+    """Get the path to the sample.txt file"""
+    return os.path.join(get_module_base_path(), "sample.txt")
+
 class VideoSource:
     """Class to handle different video sources (PiCamera, RTSP, USB camera)"""
     
@@ -114,7 +126,8 @@ if not video_source.initialize():
 
 # Load a sample picture and learn how to recognize it.
 print("Loading known face image(s)")
-rec_image = face_recognition.load_image_file("/home/pi/MagicMirror/modules/MMM-Face-Recognition-SMAI/public/face.png")
+face_image_path = os.path.join(get_public_dir_path(), "face.png")
+rec_image = face_recognition.load_image_file(face_image_path)
 rec_face_encoding = face_recognition.face_encodings(rec_image)[0]
 
 # Initialize some variables
@@ -149,7 +162,8 @@ try:
         name = "<Unknown Person>"
    
         if id_check == 0:
-            for file in os.listdir("/home/pi/MagicMirror/modules/MMM-Face-Recognition-SMAI/public"):
+            public_dir = get_public_dir_path()
+            for file in os.listdir(public_dir):
                 if file.endswith("-id.png"):
                     face_id = file.replace('-', ' ').split(' ')[0]
                     #print(face_id)
@@ -163,13 +177,14 @@ try:
             
 
         print("Person Detected: {}!".format(face_id))
-        f = open("/home/pi/MagicMirror/modules/MMM-Face-Recognition-SMAI/sample.txt", "w")
+        sample_file_path = get_sample_file_path()
+        f = open(sample_file_path, "w")
         f.write(name)
         f.close()
         #time taken before the user is logged off from the mirror
         time.sleep(15)
         
-        f = open("/home/pi/MagicMirror/modules/MMM-Face-Recognition-SMAI/sample.txt", "w")
+        f = open(sample_file_path, "w")
         f.write(face_id)
         f.close()
 
